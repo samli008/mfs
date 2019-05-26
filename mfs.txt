@@ -1,0 +1,67 @@
+wget http://samli008.3322.org:81/mfs/mfs.tar.gz
+
+cat > mfs.repo << EOF
+[mfs]
+name=mfs
+baseurl=file:///root/mfs
+enabled=1
+gpgcheck=0
+EOF
+
+#Master role:
+yum -y install moosefs-master moosefs-cgi moosefs-cgiserv moosefs-cli
+vi /etc/mfs/mfsexports.cfg 
+192.168.100.0/24 / rw,alldirs,maproot=0:0
+
+#mfsmaster start
+cat >> /etc/rc.local << EOF
+mfsmaster start
+EOF
+
+mfscgiserv start
+http://ip:9425
+
+#Metadatalog role:
+yum -y install moosefs-metalogger
+vi /etv/mfs/mfsmetalogger.cfg
+MASTER_HOST=ibnode1
+META_DOWNLOAD_FREQ = 1   #per 1 hour sync metadata from master role node
+mfsmetalogger start
+
+#Chunkserver role:
+yum -y install moosefs-chunkserver
+mkfs.xfs /dev/sdb
+mkdir /mfsdata
+echo "/dev/sdb /mfsdata xfs defaults 0 0" >> /etc/fstab
+mount -a
+chown mfs:mfs /mfsdata
+cat >> /etc/mfs/mfschunkserver.cfg << EOF
+MASTER_HOST = ibnode1
+EOF
+cat >> /etc/mfs/mfshdd.cfg << EOF
+/mfsdata
+EOF
+mfschunkserver start
+cat >> /etc/rc.local << EOF
+mfschunkserver start
+mfsmount -H ibnode1 /yewu
+EOF
+
+#Client role:
+yum -y install moosefs-client
+mkdir /yewu
+mfsmount -H ibnode1 /yewu
+cat >> /etc/rc.local << EOF
+mfsmount -H ibnode1 /yewu
+EOF
+
+#The number of copies for the folder is set with the mfssetgoal -r command
+mfssetgoal -r 1 /mnt/mfs/folder1
+mfssetgoal -r 2 /mnt/mfs/folder2
+mfsgetgoal /mnt/mfs/folder1
+mfsfileinfo /mnt/mfs/folder1/xxx
+mfscheckfile /mnt/mfs/folder1/xxx
+
+#Metadata  in /var/lib/mfs on master role node.
+
+

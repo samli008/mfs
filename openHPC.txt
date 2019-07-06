@@ -1,0 +1,55 @@
+#install openHPC on Centos7.4, openHPC is protable batch system.
+
+cat >> /etc/hosts << EOF
+192.168.6.171 node1
+192.168.6.172 node2
+192.168.6.173 node3
+EOF
+
+cat > /etc/yum.repos.d/hpc.repo << EOF
+[hpc]
+name=hpc
+baseurl=file:///root/openhpc
+enabled=1
+gpgcheck=0
+EOF
+
+#on master node
+tar xzvf pbspro-server-ohpc.tar
+yum install -y pbspro-server-ohpc
+
+#on compute nodes
+tar xzvf pbspro-execution-ohpc.tar
+yum install -y pbspro-execution-ohpc
+
+#on compute nodes 
+cat >> /etc/pbs.conf << EOF
+PBS_SERVER=master_name
+EOF
+
+cat > /var/spool/pbs/mom_priv/config << EOF
+$clienthost master_node_name
+EOF
+
+#on all nodes
+systemctl enable pbs
+systemctl start pbs
+
+#on master node
+. /etc/profile.d/pbs.sh
+qmgr -c 'create node node2'
+qmgr -c 'create node node3'
+
+#view compute nodes
+pbsnodes -a
+
+#commit job
+qsub example.pbs
+
+#view job 
+qstat
+
+#delete job
+qdel job_id
+
+

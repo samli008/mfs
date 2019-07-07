@@ -19,7 +19,7 @@ yum -y install moosefs-master moosefs-cgi moosefs-cgiserv moosefs-cli
 mfsmaster start
 mfscgiserv start
 sleep 5
-echo "mfsmaster start" >> /etc/rc.local
+echo "mfsmaster -a" >> /etc/rc.local
 echo "mfscgiserv start" >> /etc/rc.local
 echo "sleep 5" >> /etc/rc.local
 

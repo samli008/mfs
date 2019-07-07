@@ -1,0 +1,1 @@
+/usr/sbin/mfsmaster -a

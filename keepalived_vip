@@ -1,0 +1,52 @@
+#config two nodes vip with keepalived simple configure
+#yum -y install keepalived 
+#systemctl enable keepalived
+#systemctl start keepalived
+
+# on node2 below /etc/keepalived/keepalived.conf
+
+! Configuration File for keepalived
+
+global_defs {
+   router_id node2
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface eth0
+    virtual_router_id 53
+    priority 98
+    advert_int 1
+    nopreempt
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.6.111/24
+    }
+}
+
+# on node3 below /etc/keepalived/keepalived.conf
+
+! Configuration File for keepalived
+
+global_defs {
+   router_id node3
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface eth0
+    virtual_router_id 53
+    priority 99
+    advert_int 1
+    nopreempt
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.6.111/24
+    }
+}

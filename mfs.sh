@@ -1,4 +1,4 @@
-#config local yum source
+#config local yum source on node1 node2 node3
 cd /etc/yum.repos.d/
 rm -rf *
 cat > /etc/yum.repos.d/hpc_mfs.repo << EOF
@@ -12,7 +12,17 @@ name=hpc
 baseurl=file:///root/openhpc
 enabled=1
 gpgcheck=0
+[keepalived]
+name=keepalived
+baseurl=file:///root/keepalived
+enabled=1
+gpgcheck=0
 EOF
+
+ssh node2 "rm -rf /etc/yum.repos.d/*"
+ssh node3 "rm -rf /etc/yum.repos.d/*"
+scp /etc/yum.repos.d/hpc_mfs.repo node2:/etc/yum.repos.d/
+scp /etc/yum.repos.d/hpc_mfs.repo node3:/etc/yum.repos.d/
 
 #config master node
 yum -y install moosefs-master moosefs-cgi moosefs-cgiserv moosefs-cli

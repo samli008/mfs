@@ -1,0 +1,13 @@
+---
+- hosts: master
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: install_master
+      yum: name=moosefs-master,moosefs-cgi,moosefs-cgiserv,moosefs-cli,moosefs-client
+
+    - name: config_master
+      shell: echo "{{net}} / rw,alldirs,admin,maproot=0:0" > /etc/mfs/mfsexports.cfg
+
